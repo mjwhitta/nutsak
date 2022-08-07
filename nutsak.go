@@ -131,21 +131,20 @@ func logSubInfo(lvl int, msg string, args ...interface{}) {
 
 // Pair will connect two NUts together using Stream().
 func Pair(a NUt, b NUt) error {
-	var e error
 	var wait = make(chan struct{}, 2)
 
 	// Ensure they are up
-	if e = a.Up(); e != nil {
+	if e := a.Up(); e != nil {
 		return e
 	}
 
-	if e = b.Up(); e != nil {
+	if e := b.Up(); e != nil {
 		return e
 	}
 
 	// Stream a to b
 	go func() {
-		if e := Stream(a, b); e != nil {
+		if e := stream(a, b); e != nil {
 			logErr(1, e.Error())
 		}
 
@@ -156,7 +155,7 @@ func Pair(a NUt, b NUt) error {
 
 	// Stream b to a
 	go func() {
-		if e := Stream(b, a); e != nil {
+		if e := stream(b, a); e != nil {
 			logErr(1, e.Error())
 		}
 
@@ -173,16 +172,21 @@ func Pair(a NUt, b NUt) error {
 
 // Stream will stream data from a to b using io.Copy().
 func Stream(a NUt, b NUt) error {
-	var e error
-
 	// Ensure they are up
-	if e = a.Up(); e != nil {
+	if e := a.Up(); e != nil {
 		return e
 	}
 
-	if e = b.Up(); e != nil {
+	if e := b.Up(); e != nil {
 		return e
 	}
+
+	stream(a, b)
+	return nil
+}
+
+func stream(a NUt, b NUt) error {
+	var e error
 
 	// Let things settle
 	for !a.IsUp() || !b.IsUp() {

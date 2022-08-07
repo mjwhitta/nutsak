@@ -31,37 +31,201 @@ func TestBanner(t *testing.T) {
 }
 
 func TestFileNUt(t *testing.T) {
-	var a sak.NUt
-	var b sak.NUt
+	t.Run(
+		"NoName",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("file:")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownMode",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("file:testdata/in,mode=asdf")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownOption",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("file:testdata/in,asdf")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownType",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewFileNUt("asdf:")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"SuccessAppend",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var e error
+
+			// Ensure file doesn't already exist
+			os.Remove("testdata/out_file_a")
+
+			// Create NUts
+			a, e = sak.NewNUt("file:testdata/in")
+			assert.Nil(t, e)
+
+			b, e = sak.NewNUt("file:testdata/out_file_a,mode=append")
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Down()
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+
+			compare(t, "testdata/out_file_a")
+		},
+	)
+
+	t.Run(
+		"SuccessWrite",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var e error
+
+			// Create NUts
+			a, e = sak.NewNUt("file:testdata/in")
+			assert.Nil(t, e)
+
+			b, e = sak.NewNUt("file:testdata/out_file_w,mode=write")
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Down()
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+
+			compare(t, "testdata/out_file_w")
+		},
+	)
+}
+
+func TestNewNUt(t *testing.T) {
 	var e error
 
-	// Create NUts
-	a, e = sak.NewNUt("file:testdata/in")
-	assert.Nil(t, e)
-
-	b, e = sak.NewNUt("file:testdata/out_file,mode=write")
-	assert.Nil(t, e)
-
-	// Pair NUts
-	go func() {
-		e = sak.Pair(a, b)
-		assert.Nil(t, e)
-	}()
-
-	// Wait
-	time.Sleep(2 * time.Second)
-
-	// Stop NUts
-	e = a.Down()
-	assert.Nil(t, e)
-
-	e = b.Down()
-	assert.Nil(t, e)
-
-	compare(t, "testdata/out_file")
+	// Create NUt
+	_, e = sak.NewNUt("asdf:")
+	assert.NotNil(t, e)
 }
 
 func TestStdioNUt(t *testing.T) {
+	t.Run(
+		"InvalidAddr",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("stdio:asdf")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownOption",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("stdio:,asdf")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownType",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewStdioNUt("asdf:")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"Success",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var e error
+
+			// Create NUts
+			a, e = sak.NewNUt("-")
+			assert.Nil(t, e)
+
+			b, e = sak.NewNUt("-")
+			assert.Nil(t, e)
+
+			e = a.Open() // For coverage
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Close() // For coverage
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+		},
+	)
+}
+
+func TestStream(t *testing.T) {
 	var a sak.NUt
 	var b sak.NUt
 	var e error
@@ -73,9 +237,9 @@ func TestStdioNUt(t *testing.T) {
 	b, e = sak.NewNUt("-")
 	assert.Nil(t, e)
 
-	// Pair NUts
+	// Stream NUts
 	go func() {
-		e = sak.Pair(a, b)
+		e = sak.Stream(a, b)
 		assert.Nil(t, e)
 	}()
 
@@ -91,171 +255,475 @@ func TestStdioNUt(t *testing.T) {
 }
 
 func TestTCPNUt(t *testing.T) {
-	var a sak.NUt
-	var b sak.NUt
-	var c sak.NUt
-	var d sak.NUt
-	var e error
+	t.Run(
+		"NoResolve",
+		func(t *testing.T) {
+			var a sak.NUt
+			var e error
 
-	// Create NUts
-	a, e = sak.NewNUt("file:testdata/in")
-	assert.Nil(t, e)
+			// Create NUt
+			a, e = sak.NewNUt("tcp:doesnotexist.asdf.com:4444")
+			assert.Nil(t, e)
 
-	b, e = sak.NewNUt("tcp:127.13.37.1:4444")
-	assert.Nil(t, e)
+			e = a.Up()
+			assert.NotNil(t, e)
 
-	c, e = sak.NewNUt("tcp-l:127.13.37.1:4444,fork")
-	assert.Nil(t, e)
+			a, e = sak.NewNUt("tcp-l:doesnotexist.asdf.com:4444")
+			assert.Nil(t, e)
 
-	d, e = sak.NewNUt("file:testdata/out_tcp,mode=write")
-	assert.Nil(t, e)
+			e = a.Up()
+			assert.NotNil(t, e)
+		},
+	)
 
-	// Pair NUts
-	go func() {
-		e = sak.Pair(c, d)
-		assert.Nil(t, e)
-	}()
-	go func() {
-		e = sak.Pair(a, b)
-		assert.Nil(t, e)
-	}()
+	t.Run(
+		"UnknownOption",
+		func(t *testing.T) {
+			var e error
 
-	// Wait
-	time.Sleep(2 * time.Second)
+			// Create NUt
+			_, e = sak.NewNUt("tcp:127.13.37.1:4444,asdf")
+			assert.NotNil(t, e)
+		},
+	)
 
-	// Stop NUts
-	e = a.Down()
-	assert.Nil(t, e)
+	t.Run(
+		"UnknownType",
+		func(t *testing.T) {
+			var e error
 
-	e = b.Down()
-	assert.Nil(t, e)
+			// Create NUt
+			_, e = sak.NewTCPNUt("asdf:")
+			assert.NotNil(t, e)
+		},
+	)
 
-	e = c.Down()
-	assert.Nil(t, e)
+	t.Run(
+		"Success",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var c sak.NUt
+			var d sak.NUt
+			var e error
 
-	e = d.Down()
-	assert.Nil(t, e)
+			// Create NUts
+			a, e = sak.NewNUt("file:testdata/in")
+			assert.Nil(t, e)
 
-	compare(t, "testdata/out_tcp")
+			b, e = sak.NewNUt("tcp:127.13.37.1:4444")
+			assert.Nil(t, e)
+
+			c, e = sak.NewNUt("tcp-l:127.13.37.1:4444,fork")
+			assert.Nil(t, e)
+
+			d, e = sak.NewNUt("file:testdata/out_tcp,mode=write")
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(c, d)
+				assert.Nil(t, e)
+			}()
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Down()
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+
+			e = c.Down()
+			assert.Nil(t, e)
+
+			e = d.Down()
+			assert.Nil(t, e)
+
+			compare(t, "testdata/out_tcp")
+		},
+	)
 }
 
 func TestTLSNUt(t *testing.T) {
-	var a sak.NUt
-	var b sak.NUt
-	var c sak.NUt
-	var d sak.NUt
-	var e error
+	t.Run(
+		"InvalidCA",
+		func(t *testing.T) {
+			var e error
 
-	// Create NUts
-	a, e = sak.NewNUt("file:testdata/in")
-	assert.Nil(t, e)
-
-	b, e = sak.NewNUt(
-		strings.Join(
-			[]string{
-				"tls:127.13.37.1:8443",
-				"ca=testdata/pki/ca/ca.cert.pem",
-				"cert=testdata/pki/certs/user.cert.pem",
-				"key=testdata/pki/private/user.key.pem",
-				"verify",
-			},
-			",",
-		),
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"ca=/noexist",
+						"cert=/noexist",
+						"key=/noexist",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
 	)
-	assert.Nil(t, e)
 
-	c, e = sak.NewNUt(
-		strings.Join(
-			[]string{
-				"tls-l:127.13.37.1:8443",
-				"ca=testdata/pki/ca/ca.cert.pem",
-				"cert=testdata/pki/certs/localhost.cert.pem",
-				"fork",
-				"key=testdata/pki/private/localhost.key.pem",
-				"verify",
-			},
-			",",
-		),
+	t.Run(
+		"InvalidCert",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"cert=/noexist",
+						"key=/noexist",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
 	)
-	assert.Nil(t, e)
 
-	d, e = sak.NewNUt("file:testdata/out_tls,mode=write")
-	assert.Nil(t, e)
+	t.Run(
+		"InvalidKey",
+		func(t *testing.T) {
+			var e error
 
-	// Pair NUts
-	go func() {
-		e = sak.Pair(c, d)
-		assert.Nil(t, e)
-	}()
-	go func() {
-		e = sak.Pair(a, b)
-		assert.Nil(t, e)
-	}()
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"key=/noexist",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
+	)
 
-	// Wait
-	time.Sleep(2 * time.Second)
+	t.Run(
+		"MissingCA",
+		func(t *testing.T) {
+			var e error
 
-	// Stop NUts
-	e = a.Down()
-	assert.Nil(t, e)
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls-l:127.13.37.1:8443",
+						"cert=testdata/pki/certs/localhost.cert.pem",
+						"fork",
+						"key=testdata/pki/private/localhost.key.pem",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
+	)
 
-	e = b.Down()
-	assert.Nil(t, e)
+	t.Run(
+		"MissingCert",
+		func(t *testing.T) {
+			var e error
 
-	e = c.Down()
-	assert.Nil(t, e)
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"key=testdata/pki/private/localhost.key.pem",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
 
-	e = d.Down()
-	assert.Nil(t, e)
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls-l:127.13.37.1:8443",
+						"ca=testdata/pki/ca/ca.cert.pem",
+						"fork",
+						"key=testdata/pki/private/localhost.key.pem",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
+	)
 
-	compare(t, "testdata/out_tls")
+	t.Run(
+		"MissingKey",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"cert=testdata/pki/certs/localhost.cert.pem",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+
+			_, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls-l:127.13.37.1:8443",
+						"ca=testdata/pki/ca/ca.cert.pem",
+						"cert=testdata/pki/certs/localhost.cert.pem",
+						"fork",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"NoResolve",
+		func(t *testing.T) {
+			var a sak.NUt
+			var e error
+
+			// Create NUt
+			a, e = sak.NewNUt("tls:doesnotexist.asdf.com:8443")
+			assert.Nil(t, e)
+
+			e = a.Up()
+			assert.NotNil(t, e)
+
+			a, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls-l:doesnotexist.asdf.com:8443",
+						"ca=testdata/pki/ca/ca.cert.pem",
+						"cert=testdata/pki/certs/localhost.cert.pem",
+						"fork",
+						"key=testdata/pki/private/localhost.key.pem",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.Nil(t, e)
+
+			e = a.Up()
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownOption",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewNUt("tls:127.13.37.1:8443,asdf")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"UnknownType",
+		func(t *testing.T) {
+			var e error
+
+			// Create NUt
+			_, e = sak.NewTLSNUt("asdf:")
+			assert.NotNil(t, e)
+		},
+	)
+
+	t.Run(
+		"Success",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var c sak.NUt
+			var d sak.NUt
+			var e error
+
+			// Create NUts
+			a, e = sak.NewNUt("file:testdata/in")
+			assert.Nil(t, e)
+
+			b, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls:127.13.37.1:8443",
+						"ca=testdata/pki/ca/ca.cert.pem",
+						"cert=testdata/pki/certs/user.cert.pem",
+						"key=testdata/pki/private/user.key.pem",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.Nil(t, e)
+
+			c, e = sak.NewNUt(
+				strings.Join(
+					[]string{
+						"tls-l:127.13.37.1:8443",
+						"ca=testdata/pki/ca/ca.cert.pem",
+						"cert=testdata/pki/certs/localhost.cert.pem",
+						"fork",
+						"key=testdata/pki/private/localhost.key.pem",
+						"verify",
+					},
+					",",
+				),
+			)
+			assert.Nil(t, e)
+
+			d, e = sak.NewNUt("file:testdata/out_tls,mode=write")
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(c, d)
+				assert.Nil(t, e)
+			}()
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Down()
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+
+			e = c.Down()
+			assert.Nil(t, e)
+
+			e = d.Down()
+			assert.Nil(t, e)
+
+			compare(t, "testdata/out_tls")
+		},
+	)
 }
 
 func TestUDPNUt(t *testing.T) {
-	var a sak.NUt
-	var b sak.NUt
-	var c sak.NUt
-	var d sak.NUt
-	var e error
+	t.Run(
+		"NoResolve",
+		func(t *testing.T) {
+			var a sak.NUt
+			var e error
 
-	// Create NUts
-	a, e = sak.NewNUt("file:testdata/in")
-	assert.Nil(t, e)
+			// Create NUt
+			a, e = sak.NewNUt("udp:doesnotexist.asdf.com:4444")
+			assert.Nil(t, e)
 
-	b, e = sak.NewNUt("udp:127.13.37.1:5353")
-	assert.Nil(t, e)
+			e = a.Up()
+			assert.NotNil(t, e)
 
-	c, e = sak.NewNUt("udp-l:127.13.37.1:5353")
-	assert.Nil(t, e)
+			a, e = sak.NewNUt("udp-l:doesnotexist.asdf.com:4444")
+			assert.Nil(t, e)
 
-	d, e = sak.NewNUt("file:testdata/out_udp,mode=write")
-	assert.Nil(t, e)
+			e = a.Up()
+			assert.NotNil(t, e)
+		},
+	)
 
-	// Pair NUts
-	go func() {
-		e = sak.Pair(c, d)
-		assert.Nil(t, e)
-	}()
-	go func() {
-		e = sak.Pair(a, b)
-		assert.Nil(t, e)
-	}()
+	t.Run(
+		"UnknownOption",
+		func(t *testing.T) {
+			var e error
 
-	// Wait
-	time.Sleep(2 * time.Second)
+			// Create NUt
+			_, e = sak.NewNUt("udp:127.13.37.1:4444,asdf")
+			assert.NotNil(t, e)
+		},
+	)
 
-	// Stop NUts
-	e = a.Down()
-	assert.Nil(t, e)
+	t.Run(
+		"UnknownType",
+		func(t *testing.T) {
+			var e error
 
-	e = b.Down()
-	assert.Nil(t, e)
+			// Create NUt
+			_, e = sak.NewUDPNUt("asdf:")
+			assert.NotNil(t, e)
+		},
+	)
 
-	e = c.Down()
-	assert.Nil(t, e)
+	t.Run(
+		"Success",
+		func(t *testing.T) {
+			var a sak.NUt
+			var b sak.NUt
+			var c sak.NUt
+			var d sak.NUt
+			var e error
 
-	e = d.Down()
-	assert.Nil(t, e)
+			// Create NUts
+			a, e = sak.NewNUt("file:testdata/in")
+			assert.Nil(t, e)
 
-	compare(t, "testdata/out_udp")
+			b, e = sak.NewNUt("udp:127.13.37.1:5353")
+			assert.Nil(t, e)
+
+			c, e = sak.NewNUt("udp-l:127.13.37.1:5353")
+			assert.Nil(t, e)
+
+			d, e = sak.NewNUt("file:testdata/out_udp,mode=write")
+			assert.Nil(t, e)
+
+			// Pair NUts
+			go func() {
+				e = sak.Pair(c, d)
+				assert.Nil(t, e)
+			}()
+			go func() {
+				e = sak.Pair(a, b)
+				assert.Nil(t, e)
+			}()
+
+			// Wait
+			time.Sleep(2 * time.Second)
+
+			// Stop NUts
+			e = a.Down()
+			assert.Nil(t, e)
+
+			e = b.Down()
+			assert.Nil(t, e)
+
+			e = c.Down()
+			assert.Nil(t, e)
+
+			e = d.Down()
+			assert.Nil(t, e)
+
+			compare(t, "testdata/out_udp")
+		},
+	)
 }
