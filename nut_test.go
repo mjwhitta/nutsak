@@ -26,8 +26,8 @@ func compare(t *testing.T, fn string) {
 }
 
 func TestBanner(t *testing.T) {
-	sak.Banner()
-	sak.BannerNSFW()
+	sak.Banner(true)
+	sak.BannerNSFW(true)
 }
 
 func TestFileNUt(t *testing.T) {

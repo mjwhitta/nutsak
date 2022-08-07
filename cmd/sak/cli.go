@@ -100,7 +100,12 @@ func init() {
 	cli.Title = "NUtSAK"
 
 	// Parse cli flags
-	cli.Flag(&flags.debug, "d", "Show debug messages.")
+	cli.Flag(
+		&flags.debug,
+		"d",
+		"debug",
+		"Show additional levels of debug messages.",
+	)
 	cli.Flag(
 		&flags.nocolor,
 		"no-color",
