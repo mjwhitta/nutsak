@@ -92,5 +92,6 @@ func main() {
 
 ## TODO
 
+- Improve TCP/TLS fork option
 - EXEC process support
 - HTTP proxy support
