@@ -9,12 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+      with:
+        path: gomk
+        repository: mjwhitta/gomk
     - uses: actions/setup-go@v3
       with:
         go-version: "stable"
     - name: Build
-      run: go build --ldflags="-s -w" --trimpath
-    - name: Test
-      run: go test --coverprofile=cover.out ./...
-    - name: Coverage
-      run: go tool cover --func=cover.out
+      run: make
+    - name: Test coverage
+      run: make cover
