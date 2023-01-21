@@ -102,7 +102,7 @@ import (
 	"io"
 	"time"
 
-	"gitlab.com/mjwhitta/errors"
+	"github.com/mjwhitta/errors"
 )
 
 func logErr(lvl int, msg string, args ...interface{}) {

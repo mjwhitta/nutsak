@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
+	sak "github.com/mjwhitta/nutsak"
 	assert "github.com/stretchr/testify/require"
-	sak "gitlab.com/mjwhitta/nutsak"
 )
 
 func compare(t *testing.T, fn string) {

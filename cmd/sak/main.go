@@ -5,9 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitlab.com/mjwhitta/cli"
-	"gitlab.com/mjwhitta/log"
-	sak "gitlab.com/mjwhitta/nutsak"
+	"github.com/mjwhitta/cli"
+	"github.com/mjwhitta/log"
+	sak "github.com/mjwhitta/nutsak"
 )
 
 func main() {

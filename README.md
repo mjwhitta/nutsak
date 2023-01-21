@@ -2,7 +2,8 @@
 
 <a href="https://www.buymeacoffee.com/mjwhitta">🍪 Buy me a cookie</a>
 
-[![Go Report Card](https://goreportcard.com/badge/gitlab.com/mjwhitta/nutsak)](https://goreportcard.com/report/gitlab.com/mjwhitta/nutsak)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mjwhitta/nutsak)](https://goreportcard.com/report/github.com/mjwhitta/nutsak)
+![Workflow](https://github.com/mjwhitta/nutsak/actions/workflows/ci.yaml/badge.svg?event=push)
 
 ## What is this?
 
@@ -15,16 +16,16 @@ Open a terminal and run the following:
 
 ```
 $ # For library usage
-$ go get --ldflags "-s -w" --trimpath -u gitlab.com/mjwhitta/nutsak
+$ go get --ldflags "-s -w" --trimpath -u github.com/mjwhitta/nutsak
 $ # For cli usage
 $ go install --ldflags "-s -w" --trimpath \
-    gitlab.com/mjwhitta/nutsak/cmd/sak@latest
+    github.com/mjwhitta/nutsak/cmd/sak@latest
 ```
 
 Or compile from source:
 
 ```
-$ git clone https://gitlab.com/mjwhitta/nutsak.git
+$ git clone https://github.com/mjwhitta/nutsak.git
 $ cd nutsak
 $ git submodule update --init
 $ make
@@ -54,7 +55,7 @@ package main
 import (
     "time"
 
-    sak "gitlab.com/mjwhitta/nutsak"
+    sak "github.com/mjwhitta/nutsak"
 )
 
 func main() {
@@ -88,7 +89,7 @@ func main() {
 
 ## Links
 
-- [Source](https://gitlab.com/mjwhitta/nutsak)
+- [Source](https://github.com/mjwhitta/nutsak)
 
 ## TODO
 

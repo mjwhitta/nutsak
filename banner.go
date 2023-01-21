@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	hl "gitlab.com/mjwhitta/hilighter"
+	hl "github.com/mjwhitta/hilighter"
 )
 
 // Banner will display a fancy piece of art to stdout.

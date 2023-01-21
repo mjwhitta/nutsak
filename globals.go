@@ -1,6 +1,6 @@
 package nutsak
 
-import "gitlab.com/mjwhitta/log"
+import "github.com/mjwhitta/log"
 
 const (
 	client = iota
@@ -15,4 +15,4 @@ var Logger *log.Messenger
 var LogLvl int
 
 // Version is the package version.
-const Version = "1.0.3"
+const Version = "1.0.4"

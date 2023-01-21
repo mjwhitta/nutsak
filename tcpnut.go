@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/mjwhitta/errors"
+	"github.com/mjwhitta/errors"
 )
 
 // TCPNUt is a TCP network utility.

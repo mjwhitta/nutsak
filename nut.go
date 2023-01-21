@@ -3,7 +3,7 @@ package nutsak
 import (
 	"strings"
 
-	"gitlab.com/mjwhitta/errors"
+	"github.com/mjwhitta/errors"
 )
 
 // NUt is a network utility capable of reading and writing to a

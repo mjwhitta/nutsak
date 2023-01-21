@@ -7,7 +7,7 @@ import (
 	"encoding/pem"
 	"os"
 
-	"gitlab.com/mjwhitta/errors"
+	"github.com/mjwhitta/errors"
 )
 
 func decodeCert(b []byte) (*x509.Certificate, error) {

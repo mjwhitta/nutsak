@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"gitlab.com/mjwhitta/errors"
+	"github.com/mjwhitta/errors"
 )
 
 // FileNUt is a file network utility.
