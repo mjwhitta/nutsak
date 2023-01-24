@@ -79,7 +79,7 @@ func (nut *baseNUt) Down() error {
 	return nil
 }
 
-// IsUp will return whether or not the network utiltity is up and
+// IsUp will return whether or not the network utility is up and
 // running.
 func (nut *baseNUt) IsUp() bool {
 	return nut.up

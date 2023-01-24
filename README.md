@@ -35,7 +35,7 @@ $ make
 
 ### CLI
 
-To create a simple TCP listner:
+To create a simple TCP listener:
 
 ```
 $ sak tcp-listen:4444,fork stdout

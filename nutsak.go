@@ -23,7 +23,7 @@
 //
 // This will create a TCP listener on port 4444 that forks each new
 // connection. Any received data will be written to STDOUT. The
-// Network Utilties (NUts) are created from seeds. Below are the
+// Network Utilities (NUts) are created from seeds. Below are the
 // supported SEED TYPES along with their documentation:
 //
 // FILE:addr[,mode=(append|read|write)]
