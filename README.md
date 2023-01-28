@@ -1,9 +1,11 @@
 # Network Utility Swiss-Army Knife (NUtSAK)
 
-[![Yum](https://img.shields.io/badge/-Buy%20me%20a%20cookie-blue?style=for-the-badge&logo=cookiecutter)](https://www.buymeacoffee.com/mjwhitta)
+[![Yum](https://img.shields.io/badge/-Buy%20me%20a%20cookie-blue?labelColor=grey&logo=cookiecutter&style=for-the-badge)](https://www.buymeacoffee.com/mjwhitta)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/mjwhitta/nutsak)](https://goreportcard.com/report/github.com/mjwhitta/nutsak)
-![Workflow](https://github.com/mjwhitta/nutsak/actions/workflows/ci.yaml/badge.svg?event=push)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mjwhitta/nutsak?style=for-the-badge)](https://goreportcard.com/report/github.com/mjwhitta/nutsak)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mjwhitta/nutsak/ci.yaml?style=for-the-badge)
+![Lines of code](https://img.shields.io/tokei/lines/github/mjwhitta/nutsak?style=for-the-badge)
+![License](https://img.shields.io/github/license/mjwhitta/nutsak?style=for-the-badge)
 
 ## What is this?
 
