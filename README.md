@@ -3,7 +3,7 @@
 [![Yum](https://img.shields.io/badge/-Buy%20me%20a%20cookie-blue?labelColor=grey&logo=cookiecutter&style=for-the-badge)](https://www.buymeacoffee.com/mjwhitta)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/mjwhitta/nutsak?style=for-the-badge)](https://goreportcard.com/report/github.com/mjwhitta/nutsak)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mjwhitta/nutsak/ci.yaml?style=for-the-badge)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mjwhitta/nutsak/ci.yaml?style=for-the-badge)](https://github.com/mjwhitta/nutsak/actions)
 ![Lines of code](https://img.shields.io/tokei/lines/github/mjwhitta/nutsak?style=for-the-badge)
 ![License](https://img.shields.io/github/license/mjwhitta/nutsak?style=for-the-badge)
 
