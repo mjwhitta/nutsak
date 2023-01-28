@@ -1,6 +1,6 @@
 # Network Utility Swiss-Army Knife (NUtSAK)
 
-<a href="https://www.buymeacoffee.com/mjwhitta">🍪 Buy me a cookie</a>
+[![Yum](https://img.shields.io/badge/-Buy%20me%20a%20cookie-blue?style=for-the-badge&logo=cookiecutter)](https://www.buymeacoffee.com/mjwhitta)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/mjwhitta/nutsak)](https://goreportcard.com/report/github.com/mjwhitta/nutsak)
 ![Workflow](https://github.com/mjwhitta/nutsak/actions/workflows/ci.yaml/badge.svg?event=push)
