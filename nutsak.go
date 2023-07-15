@@ -105,7 +105,7 @@ import (
 	"github.com/mjwhitta/errors"
 )
 
-func logErr(lvl int, msg string, args ...interface{}) {
+func logErr(lvl int, msg string, args ...any) {
 	if (Logger == nil) || (LogLvl < lvl) {
 		return
 	}
@@ -113,7 +113,7 @@ func logErr(lvl int, msg string, args ...interface{}) {
 	Logger.Errf(msg, args...)
 }
 
-func logGood(lvl int, msg string, args ...interface{}) {
+func logGood(lvl int, msg string, args ...any) {
 	if (Logger == nil) || (LogLvl < lvl) {
 		return
 	}
@@ -121,7 +121,7 @@ func logGood(lvl int, msg string, args ...interface{}) {
 	Logger.Goodf(msg, args...)
 }
 
-func logSubInfo(lvl int, msg string, args ...interface{}) {
+func logSubInfo(lvl int, msg string, args ...any) {
 	if (Logger == nil) || (LogLvl < lvl) {
 		return
 	}
