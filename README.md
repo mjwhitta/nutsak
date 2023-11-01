@@ -94,6 +94,7 @@ func main() {
 
 ## TODO
 
+- Fix compiling for Windows
 - Improve TCP/TLS fork option
 - EXEC process support
 - HTTP proxy support
