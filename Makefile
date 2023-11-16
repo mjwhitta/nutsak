@@ -1,10 +1,13 @@
 -include gomk/main.mk
 -include local/Makefile
 
-build: sak;
+ifeq ($(unameS),Darwin)
+    Seeds = $(shell GOOS=darwin go run ./tools/docextract)
+else ifeq ($(unameS),Linux)
+    Seeds = $(shell GOOS=linux go run ./tools/docextract)
+endif
 
-sak: dir fmt
-	@GOARCH=$(GOARCH) GOOS=$(GOOS) GOPATH=$(GOPATH) $(CC) build --ldflags "$(LDFLAGS) -X 'main.SEEDTYPES=$(shell go run ./tools/docextract)'" -o "$(OUT)" $(TRIM) ./cmd/sak
+LDFLAGS += -X 'main.SEEDTYPES=$(Seeds)'
 
 ifneq ($(unameS),Windows)
 spellcheck:
