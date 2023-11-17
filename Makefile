@@ -9,7 +9,7 @@ endif
 
 LDFLAGS += -X 'main.SEEDTYPES=$(Seeds)'
 
-ifneq ($(unameS),Windows)
+ifneq ($(unameS),windows)
 spellcheck:
 	@codespell -f -L hilighter -S ".git,*.pem"
 endif
