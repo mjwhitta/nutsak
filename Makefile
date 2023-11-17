@@ -1,10 +1,10 @@
 -include gomk/main.mk
 -include local/Makefile
 
-ifeq ($(unameS),Darwin)
-    Seeds = $(shell GOOS=darwin go run ./tools/docextract)
-else ifeq ($(unameS),Linux)
-    Seeds = $(shell GOOS=linux go run ./tools/docextract)
+ifeq ($(unameS),windows)
+    Seeds = $(shell set-item env:GOOS "$(unameS)"; go run ./tools/docextract)
+else
+    Seeds = $(shell GOOS=$(unameS) go run ./tools/docextract)
 endif
 
 LDFLAGS += -X 'main.SEEDTYPES=$(Seeds)'
@@ -15,4 +15,8 @@ spellcheck:
 endif
 
 superclean: superclean-default
+ifeq ($(unameS),windows)
+	@remove-item -force ./testdata/out*
+else
 	@rm -f ./testdata/out*
+endif
