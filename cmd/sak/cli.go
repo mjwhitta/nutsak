@@ -93,7 +93,7 @@ func init() {
 		false,
 		"Disable colorized output.",
 	)
-	cli.Flag(&flags.nsfw, "nsfw", false, true, "Show NSFW banner.")
+	cli.Flag(&flags.nsfw, "nsfw", false, "Show NSFW banner.", true)
 	cli.Flag(&flags.quiet, "q", "quiet", false, "Do not show banner.")
 	cli.Flag(
 		&flags.verbose,
@@ -103,7 +103,7 @@ func init() {
 		"Show stacktrace, if error.",
 	)
 	cli.Flag(&flags.version, "V", "version", false, "Show version.")
-	cli.Flag(&flags.nsfw, "xxx", false, true, "Show NSFW banner.")
+	cli.Flag(&flags.nsfw, "xxx", false, "Show NSFW banner.", true)
 	cli.Parse()
 }
 
