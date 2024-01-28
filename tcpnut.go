@@ -71,8 +71,8 @@ func (nut *TCPNUt) connect(addr string) error {
 	}
 
 	go func() {
-		var up = make(chan struct{}, 2)
-		var wait = make(chan struct{}, 2)
+		var up chan struct{} = make(chan struct{}, 2)
+		var wait chan struct{} = make(chan struct{}, 2)
 
 		for nut.up {
 			if nut.conn, e = net.DialTCP("tcp", nil, a); e != nil {
@@ -175,7 +175,7 @@ func (nut *TCPNUt) listen(addr string) error {
 	}
 
 	go func() {
-		var up = make(chan struct{}, 2)
+		var up chan struct{} = make(chan struct{}, 2)
 		var wait chan struct{}
 
 		if nut.fork {

@@ -23,7 +23,7 @@ func main() {
 	var e error
 	var lefty sak.NUt
 	var righty sak.NUt
-	var sig = make(chan os.Signal, 1)
+	var sig chan os.Signal = make(chan os.Signal, 1)
 	var tmp string = "-"
 
 	validate()

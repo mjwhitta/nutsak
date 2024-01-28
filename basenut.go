@@ -90,7 +90,7 @@ func (nut *baseNUt) Open() error {
 	return nut.Up()
 }
 
-// String will return a string representation of the network utility.
+// String will return a string representation of the baseNUt.
 func (nut *baseNUt) String() string {
 	var out string = nut.thetype + ":" + nut.config["addr"] + ","
 

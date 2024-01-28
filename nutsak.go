@@ -131,7 +131,7 @@ func logSubInfo(lvl int, msg string, args ...any) {
 
 // Pair will connect two NUts together using Stream().
 func Pair(a NUt, b NUt) error {
-	var wait = make(chan struct{}, 2)
+	var wait chan struct{} = make(chan struct{}, 2)
 
 	// Ensure they are up
 	if e := a.Up(); e != nil {

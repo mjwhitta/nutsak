@@ -79,8 +79,8 @@ func (nut *TLSNUt) connect(addr string) error {
 
 	go func() {
 		var e error
-		var up = make(chan struct{}, 2)
-		var wait = make(chan struct{}, 2)
+		var up chan struct{} = make(chan struct{}, 2)
+		var wait chan struct{} = make(chan struct{}, 2)
 
 		for nut.up {
 			nut.conn, e = tls.Dial("tcp", addr, nut.tlscfg)
@@ -188,7 +188,7 @@ func (nut *TLSNUt) listen(addr string) error {
 	nut.list = tls.NewListener(l, nut.tlscfg)
 
 	go func() {
-		var up = make(chan struct{}, 2)
+		var up chan struct{} = make(chan struct{}, 2)
 		var wait chan struct{}
 
 		if nut.fork {

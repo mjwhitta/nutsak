@@ -7,11 +7,13 @@ import (
 	"regexp"
 )
 
-var aliases = regexp.MustCompile(`^Aliases:`)
-var leadSlash = regexp.MustCompile(`^//\s*`)
-var newType = regexp.MustCompile(`^[A-Z-]+:`)
-var pkg = regexp.MustCompile(`package nutsak`)
-var types = regexp.MustCompile(`.*SEED TYPES.*`)
+var (
+	aliases   = regexp.MustCompile(`^Aliases:`)
+	leadSlash = regexp.MustCompile(`^//\s*`)
+	newType   = regexp.MustCompile(`^[A-Z-]+:`)
+	pkg       = regexp.MustCompile(`package nutsak`)
+	types     = regexp.MustCompile(`.*SEED TYPES.*`)
+)
 
 func main() {
 	var e error
