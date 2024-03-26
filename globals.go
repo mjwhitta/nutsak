@@ -15,4 +15,4 @@ var Logger *log.Messenger
 var LogLvl int
 
 // Version is the package version.
-const Version = "1.0.9"
+const Version string = "1.0.10"
