@@ -61,8 +61,8 @@ func main() {
 		// Wait for ^C
 		<-sig
 
-		lefty.Down()
-		righty.Down()
+		_ = lefty.Down()
+		_ = righty.Down()
 		os.Exit(130)
 	}()
 

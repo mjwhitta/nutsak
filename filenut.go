@@ -146,7 +146,7 @@ func (nut *FileNUt) Up() error {
 			os.O_APPEND|os.O_CREATE|os.O_RDWR,
 			0o666,
 		)
-		nut.file.Seek(0, 2)
+		_, _ = nut.file.Seek(0, 2)
 	case "read":
 		nut.file, e = os.Open(nut.addr)
 	case "write":

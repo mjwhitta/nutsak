@@ -56,7 +56,7 @@ func (nut *StdioNUt) Down() error {
 	}
 
 	nut.up = false
-	nut.baseNUt.Down()
+	_ = nut.baseNUt.Down()
 
 	return nil
 }
@@ -99,10 +99,14 @@ func (nut *StdioNUt) Up() error {
 		return nil
 	}
 
-	nut.baseNUt.Up()
+	_ = nut.baseNUt.Up()
 
-	go io.Copy(nut.pwIn, os.Stdin)
-	go io.Copy(os.Stdout, nut.prOut)
+	go func() {
+		_, _ = io.Copy(nut.pwIn, os.Stdin)
+	}()
+	go func() {
+		_, _ = io.Copy(os.Stdout, nut.prOut)
+	}()
 
 	nut.up = true
 	logGood(1, "opened stdio")

@@ -110,7 +110,7 @@ func logErr(lvl int, msg string, args ...any) {
 		return
 	}
 
-	Logger.Errf(msg, args...)
+	_ = Logger.Errf(msg, args...)
 }
 
 func logGood(lvl int, msg string, args ...any) {
@@ -118,7 +118,7 @@ func logGood(lvl int, msg string, args ...any) {
 		return
 	}
 
-	Logger.Goodf(msg, args...)
+	_ = Logger.Goodf(msg, args...)
 }
 
 func logSubInfo(lvl int, msg string, args ...any) {
@@ -126,7 +126,7 @@ func logSubInfo(lvl int, msg string, args ...any) {
 		return
 	}
 
-	Logger.SubInfof(msg, args...)
+	_ = Logger.SubInfof(msg, args...)
 }
 
 // Pair will connect two NUts together using Stream().
@@ -149,7 +149,7 @@ func Pair(a NUt, b NUt) error {
 		}
 
 		time.Sleep(time.Millisecond)
-		b.Down()
+		_ = b.Down()
 		wait <- struct{}{}
 	}()
 
@@ -160,7 +160,7 @@ func Pair(a NUt, b NUt) error {
 		}
 
 		time.Sleep(time.Millisecond)
-		a.Down()
+		_ = a.Down()
 		wait <- struct{}{}
 	}()
 
@@ -181,7 +181,7 @@ func Stream(a NUt, b NUt) error {
 		return e
 	}
 
-	stream(a, b)
+	_ = stream(a, b)
 	return nil
 }
 

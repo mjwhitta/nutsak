@@ -87,13 +87,13 @@ func (nut *TCPNUt) connect(addr string) error {
 
 			go func() {
 				up <- struct{}{}
-				io.Copy(nut.pwIn, nut.conn)
+				_, _ = io.Copy(nut.pwIn, nut.conn)
 				wait <- struct{}{}
 			}()
 
 			go func() {
 				up <- struct{}{}
-				io.Copy(nut.conn, nut.prOut)
+				_, _ = io.Copy(nut.conn, nut.prOut)
 				wait <- struct{}{}
 			}()
 
@@ -144,7 +144,7 @@ func (nut *TCPNUt) Down() error {
 	}
 
 	// Close pipes to stop io.Copy()
-	nut.baseNUt.Down()
+	_ = nut.baseNUt.Down()
 
 	return e
 }
@@ -199,13 +199,13 @@ func (nut *TCPNUt) listen(addr string) error {
 
 			go func() {
 				up <- struct{}{}
-				io.Copy(nut.pwIn, c)
+				_, _ = io.Copy(nut.pwIn, c)
 				wait <- struct{}{}
 			}()
 
 			go func() {
 				up <- struct{}{}
-				io.Copy(c, nut.prOut)
+				_, _ = io.Copy(c, nut.prOut)
 				wait <- struct{}{}
 			}()
 
@@ -270,7 +270,7 @@ func (nut *TCPNUt) Up() error {
 	}
 
 	// Up after pipes created
-	nut.baseNUt.Up()
+	_ = nut.baseNUt.Up()
 	nut.connecting = true
 	nut.up = true
 
