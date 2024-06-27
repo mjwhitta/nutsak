@@ -16,11 +16,8 @@ similar features to socat.
 Open a terminal and run the following:
 
 ```
-$ # For library usage
-$ go get --ldflags "-s -w" --trimpath -u github.com/mjwhitta/nutsak
-$ # For cli usage
-$ go install --ldflags "-s -w" --trimpath \
-    github.com/mjwhitta/nutsak/cmd/sak@latest
+$ go get -u github.com/mjwhitta/nutsak
+$ go install github.com/mjwhitta/nutsak/cmd/sak@latest
 ```
 
 Or compile from source:
