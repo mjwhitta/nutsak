@@ -17,6 +17,7 @@ type UDPNUt struct {
 	clients  map[string]struct{}
 	conn     *net.UDPConn
 	connAddr *net.UDPAddr
+	echo     bool
 	mode     int
 }
 
@@ -31,22 +32,25 @@ func NewUDPNUt(seed string) (*UDPNUt, error) {
 
 	switch nut.Type() {
 	case "udp":
-		nut.mode = client
+		nut.mode = modeClient
 	case "udp-l", "udp-listen":
-		nut.mode = server
-		nut.thetype = "udp-listen"
+		nut.mode = modeServer
+		nut.theType = "udp-listen"
 	default:
 		e = errors.Newf("unknown udp type %s", nut.Type())
 		return nil, e
 	}
 
 	for k, v := range nut.config {
-		if k == "addr" {
+		switch {
+		case k == "addr":
 			nut.addr = v
 			if !strings.Contains(nut.addr, ":") {
 				nut.addr = "0.0.0.0:" + nut.addr
 			}
-		} else {
+		case (k == "echo") && (nut.mode == modeServer):
+			nut.echo = true
+		default:
 			e = errors.Newf("unknown %s option %s", nut.Type(), k)
 			return nil, e
 		}
@@ -69,9 +73,13 @@ func (nut *UDPNUt) connect(addr string) error {
 
 	for {
 		if nut.conn, e = net.DialUDP("udp", nil, a); e != nil {
-			logErr(1, errors.Newf("connect failed: %w", e).Error())
-
+			logErr(
+				1,
+				"%s",
+				errors.Newf("connect failed: %w", e).Error(),
+			)
 			time.Sleep(time.Second)
+
 			continue
 		}
 
@@ -100,7 +108,9 @@ func (nut *UDPNUt) Down() error {
 
 	// Close connection
 	if nut.conn != nil {
-		e = nut.conn.Close()
+		if e = nut.conn.Close(); e != nil {
+			e = errors.Newf("failed to close connection: %w", e)
+		}
 	}
 
 	return e
@@ -129,6 +139,8 @@ func (nut *UDPNUt) listen(addr string) error {
 }
 
 // Read will read from the current UDP connection.
+//
+//nolint:mnd // log levels
 func (nut *UDPNUt) Read(p []byte) (int, error) {
 	var a *net.UDPAddr
 	var e error
@@ -149,23 +161,30 @@ func (nut *UDPNUt) Read(p []byte) (int, error) {
 	if n, a, e = nut.conn.ReadFromUDP(p); e != nil {
 		logSubInfo(2, "%s read: %d bytes", nut.String(), n)
 
-		if !nut.up || (nut.mode == server) {
+		if !nut.up || (nut.mode == modeServer) {
 			e = nil
 		}
 
 		return n, e
 	}
 
-	if nut.mode == server {
+	logSubInfo(2, "%s read: %d bytes", nut.String(), n)
+
+	if nut.mode == modeServer {
 		nut.connAddr = a
 
 		if _, ok := nut.clients[a.String()]; !ok {
 			nut.clients[a.String()] = struct{}{}
 			logGood(1, "Connection from %s", a.String())
 		}
+
+		if nut.echo {
+			if _, e = nut.Write(p); e != nil {
+				return n, e
+			}
+		}
 	}
 
-	logSubInfo(2, "%s read: %d bytes", nut.String(), n)
 	return n, nil
 }
 
@@ -182,22 +201,27 @@ func (nut *UDPNUt) Up() error {
 		return nil
 	}
 
+	// Up after pipes created
+	nut.up = true
+
 	// Create connection/listener
 	switch nut.mode {
-	case client:
+	case modeClient:
 		e = nut.connect(nut.addr)
-	case server:
+	case modeServer:
 		e = nut.listen(nut.addr)
 	}
 
-	if e == nil {
-		nut.up = true
+	if e != nil {
+		nut.up = false
 	}
 
 	return e
 }
 
 // Write will write to the current UDP connection.
+//
+//nolint:mnd // log levels
 func (nut *UDPNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int
@@ -214,7 +238,7 @@ func (nut *UDPNUt) Write(p []byte) (int, error) {
 		return 0, io.EOF
 	}
 
-	if nut.mode == client {
+	if nut.mode == modeClient {
 		n, e = nut.conn.Write(p)
 		logSubInfo(2, "%s write: %d bytes", nut.String(), n)
 

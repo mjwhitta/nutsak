@@ -21,6 +21,7 @@ type TLSNUt struct {
 	cert       *x509.Certificate
 	conn       *tls.Conn
 	connecting bool
+	echo       bool
 	fork       bool
 	key        *rsa.PrivateKey
 	list       net.Listener
@@ -40,10 +41,10 @@ func NewTLSNUt(seed string) (*TLSNUt, error) {
 
 	switch nut.Type() {
 	case "tls":
-		nut.mode = client
+		nut.mode = modeClient
 	case "tls-l", "tcl-listen":
-		nut.mode = server
-		nut.thetype = "tls-listen"
+		nut.mode = modeServer
+		nut.theType = "tls-listen"
 	default:
 		e = errors.Newf("unknown tls type %s", nut.Type())
 		return nil, e
@@ -79,7 +80,9 @@ func (nut *TLSNUt) connect(addr string) error {
 
 	go func() {
 		var e error
+		//nolint:mnd // 2 goroutines
 		var up chan struct{} = make(chan struct{}, 2)
+		//nolint:mnd // 2 goroutines
 		var wait chan struct{} = make(chan struct{}, 2)
 
 		for nut.up {
@@ -87,22 +90,27 @@ func (nut *TLSNUt) connect(addr string) error {
 			if e != nil {
 				if nut.up {
 					e = errors.Newf("connect failed: %w", e)
-					logErr(1, e.Error())
+					logErr(1, "%s", e.Error())
 				}
 
 				time.Sleep(time.Second)
+
 				continue
 			}
 
 			go func() {
 				up <- struct{}{}
+
 				_, _ = io.Copy(nut.pwIn, nut.conn)
+
 				wait <- struct{}{}
 			}()
 
 			go func() {
 				up <- struct{}{}
+
 				_, _ = io.Copy(nut.conn, nut.prOut)
+
 				wait <- struct{}{}
 			}()
 
@@ -142,13 +150,17 @@ func (nut *TLSNUt) Down() error {
 
 	// Close connection/listener
 	switch nut.mode {
-	case client:
+	case modeClient:
 		if nut.conn != nil {
-			e = nut.conn.Close()
+			if e = nut.conn.Close(); e != nil {
+				e = errors.Newf("failed to close connection: %w", e)
+			}
 		}
-	case server:
+	case modeServer:
 		if nut.list != nil {
-			e = nut.list.Close()
+			if e = nut.list.Close(); e != nil {
+				e = errors.Newf("failed to stop listener: %w", e)
+			}
 		}
 	}
 
@@ -162,8 +174,7 @@ func (nut *TLSNUt) Down() error {
 // left running upon EOF. In the case of TLS, it is dependent upon
 // mode.
 func (nut *TLSNUt) KeepAlive() bool {
-	switch nut.mode {
-	case server:
+	if nut.mode == modeServer {
 		return nut.up
 	}
 
@@ -188,12 +199,14 @@ func (nut *TLSNUt) listen(addr string) error {
 	nut.list = tls.NewListener(l, nut.tlscfg)
 
 	go func() {
+		//nolint:mnd // 2 goroutines
 		var up chan struct{} = make(chan struct{}, 2)
 		var wait chan struct{}
 
 		if nut.fork {
 			wait = make(chan struct{}, 1)
 		} else {
+			//nolint:mnd // 2 goroutines
 			wait = make(chan struct{}, 2)
 		}
 
@@ -201,10 +214,11 @@ func (nut *TLSNUt) listen(addr string) error {
 			if c, e = nut.list.Accept(); e != nil {
 				if nut.up {
 					e = errors.Newf("connection failed: %w", e)
-					logErr(1, e.Error())
+					logErr(1, "%s", e.Error())
 				}
 
 				time.Sleep(time.Millisecond)
+
 				continue
 			}
 
@@ -212,13 +226,17 @@ func (nut *TLSNUt) listen(addr string) error {
 
 			go func() {
 				up <- struct{}{}
+
 				_, _ = io.Copy(nut.pwIn, c)
+
 				wait <- struct{}{}
 			}()
 
 			go func() {
 				up <- struct{}{}
+
 				_, _ = io.Copy(c, nut.prOut)
+
 				wait <- struct{}{}
 			}()
 
@@ -234,6 +252,7 @@ func (nut *TLSNUt) listen(addr string) error {
 			if !nut.fork {
 				<-wait
 			}
+
 			<-wait
 		}
 	}()
@@ -253,9 +272,15 @@ func (nut *TLSNUt) parseOpts(k string, v string) error {
 		if nut.cert, e = readCert(v); e != nil {
 			return e
 		}
+	case "echo":
+		if nut.mode == modeClient {
+			return errors.Newf("unknown %s option %s", nut.Type(), k)
+		}
+
+		nut.echo = true
 	case "fork":
-		if nut.mode == client {
-			return errors.New("fork is for server")
+		if nut.mode == modeClient {
+			return errors.Newf("unknown %s option %s", nut.Type(), k)
 		}
 
 		nut.fork = true
@@ -273,6 +298,8 @@ func (nut *TLSNUt) parseOpts(k string, v string) error {
 }
 
 // Read will read from the current TLS connection.
+//
+//nolint:dupl,mnd // TLS is TCP (so yeah), log levels
 func (nut *TLSNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -290,14 +317,25 @@ func (nut *TLSNUt) Read(p []byte) (int, error) {
 		return 0, io.EOF
 	}
 
-	n, e = nut.prIn.Read(p)
-	logSubInfo(2, "%s read: %d bytes", nut.String(), n)
+	if n, e = nut.prIn.Read(p); e != nil {
+		logSubInfo(2, "%s read: %d bytes", nut.String(), n)
 
-	if !nut.up {
-		e = nil
+		if !nut.up || (nut.mode == modeServer) {
+			e = nil
+		}
+
+		return n, e
 	}
 
-	return n, e
+	logSubInfo(2, "%s read: %d bytes", nut.String(), n)
+
+	if (nut.mode == modeServer) && nut.echo {
+		if _, e = nut.Write(p); e != nil {
+			return n, e
+		}
+	}
+
+	return n, nil
 }
 
 func (nut *TLSNUt) setupTLSConfig() error {
@@ -305,10 +343,10 @@ func (nut *TLSNUt) setupTLSConfig() error {
 	var pool *x509.CertPool
 
 	// Create initial config
-	nut.tlscfg = &tls.Config{}
+	nut.tlscfg = &tls.Config{} //nolint:gosec // G402 - not a problem
 
 	switch nut.mode {
-	case client:
+	case modeClient:
 		nut.tlscfg.InsecureSkipVerify = !nut.verify
 
 		if nut.ca != nil {
@@ -323,7 +361,7 @@ func (nut *TLSNUt) setupTLSConfig() error {
 		} else if (nut.cert != nil) && (nut.key == nil) {
 			return errors.New("no key provided")
 		}
-	case server:
+	case modeServer:
 		if nut.cert == nil {
 			return errors.New("no cert provided")
 		}
@@ -391,9 +429,9 @@ func (nut *TLSNUt) Up() error {
 
 	// Create connection/listener
 	switch nut.mode {
-	case client:
+	case modeClient:
 		e = nut.connect(nut.addr)
-	case server:
+	case modeServer:
 		e = nut.listen(nut.addr)
 	}
 
@@ -405,6 +443,8 @@ func (nut *TLSNUt) Up() error {
 }
 
 // Write will write to the current TLS connection.
+//
+//nolint:mnd // log levels
 func (nut *TLSNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

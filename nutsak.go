@@ -42,125 +42,94 @@
 // TCP:addr
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to make an
-// outgoing TCP connection.
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to make
+// an outgoing TCP connection.
 //
-// TCP-LISTEN:addr[,fork]
+// TCP-LISTEN:addr[,echo,fork]
 //
 // Aliases: TCP-L
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to listen on the
-// provided TCP address. The fork option causes the TCP listener to
-// accept multiple connections in parallel.
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to
+// listen on the provided TCP address. The echo option causes the TCP
+// listener to echo the response back to the client. The fork option
+// causes the TCP listener to accept multiple connections in parallel.
 //
 // TLS:addr[,ca=PATH,cert=PATH,key=PATH,verify]
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to make an
-// outgoing TLS connection. The ca, cert, and key options take a
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to make
+// an outgoing TLS connection. The ca, cert, and key options take a
 // filepath (DER or PEM formatted). The verify option determines if
-// the the server-side CA should be verified. The cert and key options
+// the server-side CA should be verified. The cert and key options
 // must be used together. If verify is specified, a ca must also be
 // specified.
 //
-// TLS-LISTEN:addr[,ca=PATH,cert=PATH,fork,key=PATH,verify]
+// TLS-LISTEN:addr[,ca=PATH,cert=PATH,echo,fork,key=PATH,verify]
 //
 // Aliases: TLS-L
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to listen on the
-// provided TCP address. The ca, cert, and key options take a filepath
-// (DER or PEM formatted). The fork option causes the TLS listener to
-// accept multiple connections in parallel. The verify option
-// determines if the client-side certificate should be verified. The
-// cert and key options are mandatory. If verify is specified, a ca
-// must also be specified.
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to
+// listen on the provided TCP address. The ca, cert, and key options
+// take a filepath (DER or PEM formatted). The echo option causes the
+// TLS listener to echo the response back to the client. The fork
+// option causes the TLS listener to accept multiple connections in
+// parallel. The verify option determines if the client-side
+// certificate should be verified. The cert and key options are
+// mandatory. If verify is specified, a ca must also be specified.
 //
 // UDP:addr
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to make an
-// outgoing UDP connection.
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to make
+// an outgoing UDP connection.
 //
-// UDP-LISTEN:addr
+// UDP-LISTEN:addr[,echo]
 //
 // Aliases: UDP-L
 //
 // This seed takes an address of the form [IP:]PORT. The IP is
-// optional and essentially defaults to localhost, or more
-// specifically, 0.0.0.0 or [::]. This seed is used to listen on the
-// provided UDP address.
+// optional and defaults to 0.0.0.0 or [::]. This seed is used to
+// listen on the provided UDP address. The echo option causes the UDP
+// listener to echo the response back to the client.
 package nutsak
 
 import (
-	"io"
 	"time"
-
-	"github.com/mjwhitta/errors"
 )
-
-func logErr(lvl int, msg string, args ...any) {
-	if (Logger == nil) || (LogLvl < lvl) {
-		return
-	}
-
-	_ = Logger.Errf(msg, args...)
-}
-
-func logGood(lvl int, msg string, args ...any) {
-	if (Logger == nil) || (LogLvl < lvl) {
-		return
-	}
-
-	_ = Logger.Goodf(msg, args...)
-}
-
-func logSubInfo(lvl int, msg string, args ...any) {
-	if (Logger == nil) || (LogLvl < lvl) {
-		return
-	}
-
-	_ = Logger.SubInfof(msg, args...)
-}
 
 // Pair will connect two NUts together using Stream().
 func Pair(a NUt, b NUt) error {
+	//nolint:mnd // 2 goroutines
 	var wait chan struct{} = make(chan struct{}, 2)
 
 	// Ensure they are up
 	if e := a.Up(); e != nil {
-		return e
+		return e //nolint:wrapcheck // this error is from the same pkg
 	}
 
 	if e := b.Up(); e != nil {
-		return e
+		return e //nolint:wrapcheck // this error is from the same pkg
 	}
 
 	// Stream a to b
 	go func() {
-		if e := stream(a, b); e != nil {
-			logErr(1, e.Error())
-		}
-
+		stream(a, b)
 		time.Sleep(time.Millisecond)
+
 		_ = b.Down()
+
 		wait <- struct{}{}
 	}()
 
 	// Stream b to a
 	go func() {
-		if e := stream(b, a); e != nil {
-			logErr(1, e.Error())
-		}
-
+		stream(b, a)
 		time.Sleep(time.Millisecond)
+
 		_ = a.Down()
+
 		wait <- struct{}{}
 	}()
 
@@ -174,36 +143,14 @@ func Pair(a NUt, b NUt) error {
 func Stream(a NUt, b NUt) error {
 	// Ensure they are up
 	if e := a.Up(); e != nil {
-		return e
+		return e //nolint:wrapcheck // this error is from the same pkg
 	}
 
 	if e := b.Up(); e != nil {
-		return e
+		return e //nolint:wrapcheck // this error is from the same pkg
 	}
 
-	_ = stream(a, b)
+	stream(a, b)
+
 	return nil
-}
-
-func stream(a NUt, b NUt) error {
-	var e error
-
-	// Let things settle
-	for !a.IsUp() || !b.IsUp() {
-		time.Sleep(time.Millisecond)
-	}
-	time.Sleep(time.Millisecond)
-
-	for {
-		if _, e = io.Copy(b, a); !a.KeepAlive() {
-			return nil
-		}
-
-		if e != nil {
-			e = errors.Newf("failed to connect %s to %s: %w", a, b, e)
-			logErr(1, e.Error())
-		}
-
-		time.Sleep(time.Second)
-	}
 }

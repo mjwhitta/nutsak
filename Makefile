@@ -9,11 +9,6 @@ endif
 
 LDFLAGS += -X 'main.SEEDTYPES=$(Seeds)'
 
-ifneq ($(unameS),windows)
-spellcheck:
-	@codespell -f -L hilighter -S ".git,*.pem"
-endif
-
 superclean: superclean-default
 ifeq ($(unameS),windows)
 	@remove-item -force ./testdata/out*

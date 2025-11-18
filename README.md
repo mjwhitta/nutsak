@@ -37,12 +37,16 @@ To create a simple TCP listener:
 
 ```
 $ sak tcp-listen:4444,fork stdout
+$ # or don't provide second seed to default to stdio
+$ sak tcp-l:4444,fork
 ```
 
 To create a simple TCP client:
 
 ```
 $ sak stdin tcp:4444
+$ # or don't provide second seed to default to stdio
+$ sak tcp:4444
 ```
 
 ### Library

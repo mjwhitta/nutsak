@@ -20,7 +20,7 @@ func NewStdioNUt(seed string) (*StdioNUt, error) {
 
 	switch nut.Type() {
 	case "-":
-		nut.thetype = "stdio"
+		nut.theType = "stdio"
 	case "stdio", "stdin", "stdout":
 	default:
 		e = errors.Newf("unknown stdio type %s", nut.Type())
@@ -69,6 +69,8 @@ func (nut *StdioNUt) KeepAlive() bool {
 }
 
 // Read will read from stdin.
+//
+//nolint:mnd // log levels
 func (nut *StdioNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -109,12 +111,15 @@ func (nut *StdioNUt) Up() error {
 	}()
 
 	nut.up = true
+
 	logGood(1, "opened stdio")
 
 	return nil
 }
 
 // Write will write to stdout.
+//
+//nolint:mnd // log levels
 func (nut *StdioNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

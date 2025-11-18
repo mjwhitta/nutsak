@@ -33,9 +33,10 @@ func NewFileNUt(seed string) (*FileNUt, error) {
 	}
 
 	for k, v := range nut.config {
-		if k == "addr" {
+		switch k {
+		case "addr":
 			nut.addr = v
-		} else if k == "mode" {
+		case "mode":
 			switch v {
 			case "":
 			case "append", "read", "write":
@@ -44,7 +45,7 @@ func NewFileNUt(seed string) (*FileNUt, error) {
 				e = errors.Newf("unknown %s mode %s", nut.Type(), v)
 				return nil, e
 			}
-		} else {
+		default:
 			e = errors.Newf("unknown %s option %s", nut.Type(), k)
 			return nil, e
 		}
@@ -60,8 +61,6 @@ func NewFileNUt(seed string) (*FileNUt, error) {
 // Down will stop the network utility. In the case of file, it will
 // close the file.
 func (nut *FileNUt) Down() error {
-	var e error
-
 	nut.lock.Lock()
 	defer nut.lock.Unlock()
 
@@ -74,10 +73,12 @@ func (nut *FileNUt) Down() error {
 
 	// Close file
 	if nut.file != nil {
-		e = nut.file.Close()
+		if e := nut.file.Close(); e != nil {
+			return errors.Newf("failed to close file: %w", e)
+		}
 	}
 
-	return e
+	return nil
 }
 
 // KeepAlive will return whether or not the network utility should be
@@ -93,6 +94,8 @@ func (nut *FileNUt) KeepAlive() bool {
 }
 
 // Read will read from the file.
+//
+//nolint:mnd // log levels
 func (nut *FileNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -141,27 +144,32 @@ func (nut *FileNUt) Up() error {
 	// Open file
 	switch nut.mode {
 	case "append":
+		//nolint:mnd // u=rw,go=-
 		nut.file, e = os.OpenFile(
 			nut.addr,
 			os.O_APPEND|os.O_CREATE|os.O_RDWR,
-			0o666,
+			0o600,
 		)
-		_, _ = nut.file.Seek(0, 2)
+		_, _ = nut.file.Seek(0, io.SeekEnd)
 	case "read":
 		nut.file, e = os.Open(nut.addr)
 	case "write":
 		nut.file, e = os.Create(nut.addr)
 	}
 
-	if e == nil {
-		nut.up = true
-		logGood(1, "opened %s to %s", nut.addr, nut.mode)
+	if e != nil {
+		return errors.Newf("failed to open file: %w", e)
 	}
 
-	return e
+	nut.up = true
+	logGood(1, "opened %s to %s", nut.addr, nut.mode)
+
+	return nil
 }
 
 // Write will write to the file.
+//
+//nolint:mnd // log levels
 func (nut *FileNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int
@@ -178,8 +186,7 @@ func (nut *FileNUt) Write(p []byte) (int, error) {
 		return 0, io.EOF
 	}
 
-	switch nut.mode {
-	case "read":
+	if nut.mode == "read" {
 		// Send to /dev/null
 		return len(p), nil
 	}

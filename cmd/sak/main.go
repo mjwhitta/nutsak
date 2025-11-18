@@ -14,9 +14,15 @@ func main() {
 	defer func() {
 		if r := recover(); r != nil {
 			if flags.verbose {
-				panic(r.(error).Error())
+				panic(r)
 			}
-			log.ErrX(Exception, r.(error).Error())
+
+			switch r := r.(type) {
+			case error:
+				log.ErrX(Exception, r.Error())
+			case string:
+				log.ErrX(Exception, r)
+			}
 		}
 	}()
 
@@ -39,6 +45,7 @@ func main() {
 	// Debug setup
 	if flags.debug > 0 {
 		sak.Logger = log.NewMessenger()
+		//nolint:gosec // G115 - you'd have to pass the flag A LOT
 		sak.LogLvl = int(flags.debug)
 	}
 
@@ -48,22 +55,26 @@ func main() {
 	}
 
 	// Create second NUt
-	if cli.NArg() == 2 {
+	if cli.NArg() == 2 { //nolint:mnd // 2 cli args
 		tmp = cli.Arg(1)
 	}
+
 	if righty, e = sak.NewNUt(tmp); e != nil {
 		panic(e)
 	}
 
 	// Setup ^C trap
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+
 	go func() {
 		// Wait for ^C
 		<-sig
 
+		// Don't care about errors on ^C
 		_ = lefty.Down()
 		_ = righty.Down()
-		os.Exit(130)
+
+		os.Exit(130) //nolint:mnd // 130 is typical ^C exit status
 	}()
 
 	// Pair NUts to create two-way tunnel

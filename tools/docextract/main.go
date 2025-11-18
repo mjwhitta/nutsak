@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -20,14 +21,18 @@ func main() {
 	var f *os.File
 	var keep bool
 	var line string
-	var out string
 	var s *bufio.Scanner
+	var sb strings.Builder
 
 	if f, e = os.Open("nutsak.go"); e != nil {
 		fmt.Println(e.Error())
 		os.Exit(1)
 	}
-	defer f.Close()
+	defer func() {
+		if e := f.Close(); e != nil {
+			panic(e)
+		}
+	}()
 
 	s = bufio.NewScanner(f)
 	for s.Scan() {
@@ -35,7 +40,7 @@ func main() {
 
 		switch {
 		case pkg.MatchString(line):
-			fmt.Print(out[:len(out)-2])
+			fmt.Print(strings.TrimSuffix(sb.String(), "\\n"))
 			return
 		case types.MatchString(line):
 			keep = true
@@ -45,19 +50,16 @@ func main() {
 		if keep {
 			switch {
 			case line == "":
-				out += "\\n"
-			case aliases.MatchString(line):
-				out += line
-			case newType.MatchString(line):
-				out += line
+				sb.WriteString("\\n")
+			case aliases.MatchString(line), newType.MatchString(line):
+				sb.WriteString(line)
 			default:
-				out += line + "\\n"
+				sb.WriteString(line + "\\n")
 			}
 		}
 	}
 
 	if s.Err() != nil {
 		fmt.Println(s.Err().Error())
-		os.Exit(2)
 	}
 }

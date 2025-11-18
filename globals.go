@@ -2,17 +2,21 @@ package nutsak
 
 import "github.com/mjwhitta/log"
 
+// Version is the package version.
+const Version string = "1.1.0"
+
+//nolint:grouper // This is an iota block
 const (
-	client = iota
-	server
+	modeClient = iota
+	modeServer
 )
 
-// Logger will be used to log information deemed relevant to the user.
-var Logger *log.Messenger
+var (
+	// Logger will be used to log information deemed relevant to the
+	// user.
+	Logger *log.Messenger
 
-// LogLvl will be used to determine the amount of log messages
-// displayed.
-var LogLvl int
-
-// Version is the package version.
-const Version string = "1.0.13"
+	// LogLvl will be used to determine the amount of log messages
+	// displayed.
+	LogLvl int
+)

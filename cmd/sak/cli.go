@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mjwhitta/cli"
@@ -20,34 +22,38 @@ const (
 	Exception
 )
 
-// Flags
-var flags struct {
-	debug   cli.Counter
-	nocolor bool
-	nsfw    bool
-	quiet   bool
-	verbose bool
-	version bool
-}
+var (
+	// Flags
+	flags struct {
+		debug   cli.Counter
+		nocolor bool
+		nsfw    bool
+		quiet   bool
+		verbose bool
+		version bool
+	}
 
-// SEEDTYPES should be initialized at compile time.
-var SEEDTYPES string
+	// SEEDTYPES should be initialized at compile time.
+	SEEDTYPES string = "\nCompile from source for seed type info."
+)
 
 func init() {
 	// Configure cli package
 	cli.Align = true
 	cli.Authors = []string{"Miles Whittaker <mj@whitta.dev>"}
-	cli.Banner = hl.Sprintf("%s [OPTIONS] <seed> [seed]", os.Args[0])
+	cli.Banner = "" +
+		filepath.Base(os.Args[0]) + " [OPTIONS] <seed> [seed]"
 	cli.BugEmail = "nutsak.bugs@whitta.dev"
+
 	cli.ExitStatus(
 		"Normally the exit status is 0. In the event of an error the",
 		"exit status will be one of the below:\n\n",
-		hl.Sprintf("%d: Invalid option\n", InvalidOption),
-		hl.Sprintf("%d: Missing option\n", MissingOption),
-		hl.Sprintf("%d: Invalid argument\n", InvalidArgument),
-		hl.Sprintf("%d: Missing argument\n", MissingArgument),
-		hl.Sprintf("%d: Extra argument\n", ExtraArgument),
-		hl.Sprintf("%d: Exception", Exception),
+		fmt.Sprintf("%d: Invalid option\n", InvalidOption),
+		fmt.Sprintf("%d: Missing option\n", MissingOption),
+		fmt.Sprintf("%d: Invalid argument\n", InvalidArgument),
+		fmt.Sprintf("%d: Missing argument\n", MissingArgument),
+		fmt.Sprintf("%d: Extra argument\n", ExtraArgument),
+		fmt.Sprintf("%d: Exception", Exception),
 	)
 	cli.Info(
 		")( Sak is a networking utility, similar to socat. It's",
@@ -77,6 +83,7 @@ func init() {
 		"keywords, options, and semantics.\n",
 		strings.ReplaceAll(SEEDTYPES, "\\n", "\n"),
 	)
+
 	cli.SeeAlso = []string{"nc", "ncat", "socat"}
 	cli.Title = "NUtSAK"
 
@@ -113,14 +120,16 @@ func validate() {
 
 	// Short circuit, if version was requested
 	if flags.version {
-		hl.Printf("sak version %s\n", sak.Version)
+		fmt.Println(
+			filepath.Base(os.Args[0]) + " version " + sak.Version,
+		)
 		os.Exit(Good)
 	}
 
 	// Validate cli flags
 	if cli.NArg() < 1 {
 		cli.Usage(MissingArgument)
-	} else if cli.NArg() > 2 {
+	} else if cli.NArg() > 2 { //nolint:mnd // 2 cli args
 		cli.Usage(ExtraArgument)
 	}
 }

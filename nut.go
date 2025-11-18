@@ -26,10 +26,14 @@ type NUt interface {
 
 // NewNUt will return a new network utility from the provided seed
 // string.
+//
+//nolint:ireturn // It's supposed to return an interface, duh
 func NewNUt(seed string) (NUt, error) {
-	var tmp []string = strings.SplitN(seed, ":", 2)
+	var theType string
 
-	switch tmp[0] {
+	theType, _, _ = strings.Cut(seed, ":")
+
+	switch theType {
 	case "file":
 		return NewFileNUt(seed)
 	case "-", "stdin", "stdio", "stdout":
@@ -42,5 +46,5 @@ func NewNUt(seed string) (NUt, error) {
 		return NewUDPNUt(seed)
 	}
 
-	return nil, errors.Newf("unsupported NUt: %s", tmp[0])
+	return nil, errors.Newf("unsupported NUt: %s", theType)
 }

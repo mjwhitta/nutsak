@@ -18,35 +18,37 @@ type baseNUt struct {
 	prOut   *io.PipeReader
 	pwIn    *io.PipeWriter
 	pwOut   *io.PipeWriter
-	thetype string
+	theType string
 	up      bool
 }
 
 func super(seed string) *baseNUt {
+	var addr string
+	var hasOpts bool
 	var nut *baseNUt
-	var tmp []string = strings.SplitN(seed, ":", 2)
+	var opts string
+	var theType string
+
+	theType, opts, hasOpts = strings.Cut(seed, ":")
 
 	nut = &baseNUt{
 		config:  map[string]string{"addr": ""},
 		lock:    &sync.RWMutex{},
-		thetype: strings.ToLower(tmp[0]),
+		theType: strings.ToLower(theType),
 	}
 
-	if len(tmp) == 2 {
+	if hasOpts {
 		// First config option should be address
-		tmp = strings.SplitN(tmp[1], ",", 2)
-		nut.config["addr"] = tmp[0]
+		addr, opts, hasOpts = strings.Cut(opts, ",")
+		nut.config["addr"] = addr
 
 		// Parse any remaining config options
-		if len(tmp) == 2 {
-			for _, cfg := range strings.Split(tmp[1], ",") {
-				tmp = strings.SplitN(cfg, "=", 2)
-				tmp[0] = strings.ToLower(tmp[0])
-
-				if len(tmp) == 1 {
-					nut.config[tmp[0]] = ""
+		if hasOpts {
+			for _, cfg := range strings.Split(opts, ",") {
+				if k, v, ok := strings.Cut(cfg, "="); ok {
+					nut.config[strings.ToLower(k)] = v
 				} else {
-					nut.config[tmp[0]] = tmp[1]
+					nut.config[strings.ToLower(k)] = ""
 				}
 			}
 		}
@@ -64,16 +66,19 @@ func (nut *baseNUt) Close() error {
 func (nut *baseNUt) Down() error {
 	// Close pipes
 	if nut.prIn != nil {
-		nut.prIn.Close()
+		_ = nut.prIn.Close()
 	}
+
 	if nut.prOut != nil {
-		nut.prOut.Close()
+		_ = nut.prOut.Close()
 	}
+
 	if nut.pwIn != nil {
-		nut.pwIn.Close()
+		_ = nut.pwIn.Close()
 	}
+
 	if nut.pwOut != nil {
-		nut.pwOut.Close()
+		_ = nut.pwOut.Close()
 	}
 
 	return nil
@@ -92,7 +97,9 @@ func (nut *baseNUt) Open() error {
 
 // String will return a string representation of the baseNUt.
 func (nut *baseNUt) String() string {
-	var out string = nut.thetype + ":" + nut.config["addr"] + ","
+	var sb strings.Builder
+
+	sb.WriteString(nut.theType + ":" + nut.config["addr"] + ",")
 
 	for k, v := range nut.config {
 		if k == "addr" {
@@ -100,19 +107,20 @@ func (nut *baseNUt) String() string {
 		}
 
 		if v != "" {
-			out += k + "=" + v
+			sb.WriteString(k + "=" + v)
 		} else {
-			out += k
+			sb.WriteString(k)
 		}
-		out += ","
+
+		sb.WriteString(",")
 	}
 
-	return strings.TrimSuffix(out, ",")
+	return strings.TrimSuffix(sb.String(), ",")
 }
 
 // Type will return the type of the network utility.
 func (nut *baseNUt) Type() string {
-	return nut.thetype
+	return nut.theType
 }
 
 // Up is a default that is not implemented. Each NUt will implement.
