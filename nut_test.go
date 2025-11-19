@@ -5,12 +5,12 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	sak "github.com/mjwhitta/nutsak"
+	"github.com/mjwhitta/pathname"
 	assert "github.com/stretchr/testify/require"
 )
 
@@ -22,7 +22,7 @@ func compare(t *testing.T, fn string) {
 	var expected string = "5c07cdb2b518bb539198b0ffd28ecd23"
 	var hash [sha512.Size]byte
 
-	b, e = os.ReadFile(filepath.Clean(fn))
+	b, e = os.ReadFile(pathname.ExpandPath(fn))
 	assert.NoError(t, e)
 
 	hash = sha512.Sum512(b)

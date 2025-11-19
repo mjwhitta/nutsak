@@ -7,10 +7,10 @@ import (
 	"encoding/pem"
 	"io"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/mjwhitta/errors"
+	"github.com/mjwhitta/pathname"
 )
 
 func decodeCert(b []byte) (*x509.Certificate, error) {
@@ -77,7 +77,7 @@ func readCert(fn string) (*x509.Certificate, error) {
 	var e error
 
 	if b, e = hex.DecodeString(fn); e != nil {
-		if b, e = os.ReadFile(filepath.Clean(fn)); e != nil {
+		if b, e = os.ReadFile(pathname.ExpandPath(fn)); e != nil {
 			return nil, errors.Newf("failed to read %s: %w", fn, e)
 		}
 	}
@@ -90,7 +90,7 @@ func readKey(fn string) (*rsa.PrivateKey, error) {
 	var e error
 
 	if b, e = hex.DecodeString(fn); e != nil {
-		if b, e = os.ReadFile(filepath.Clean(fn)); e != nil {
+		if b, e = os.ReadFile(pathname.ExpandPath(fn)); e != nil {
 			return nil, errors.Newf("failed to read %s: %w", fn, e)
 		}
 	}

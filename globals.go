@@ -3,7 +3,7 @@ package nutsak
 import "github.com/mjwhitta/log"
 
 // Version is the package version.
-const Version string = "1.1.0"
+const Version string = "1.1.1"
 
 //nolint:grouper // This is an iota block
 const (
