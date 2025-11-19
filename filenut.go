@@ -18,7 +18,7 @@ type FileNUt struct {
 
 // NewFileNUt will return a pointer to a file network utility
 // instance with the provided seed.
-func NewFileNUt(seed string) (*FileNUt, error) {
+func NewFileNUt(seed string) (NUt, error) {
 	var e error
 	var nut *FileNUt = &FileNUt{}
 

@@ -14,7 +14,7 @@ type StdioNUt struct {
 
 // NewStdioNUt will return a pointer to a stdio network utility
 // instance with the provided seed.
-func NewStdioNUt(seed string) (*StdioNUt, error) {
+func NewStdioNUt(seed string) (NUt, error) {
 	var e error
 	var nut *StdioNUt = &StdioNUt{super(seed)}
 

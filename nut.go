@@ -24,27 +24,44 @@ type NUt interface {
 	Write(p []byte) (n int, e error)
 }
 
+type nutConstruct func(string) (NUt, error)
+
+// Verify interface compliance at compile time
+var (
+	_ NUt = (*FileNUt)(nil)
+	_ NUt = (*StdioNUt)(nil)
+	_ NUt = (*TCPNUt)(nil)
+	_ NUt = (*TLSNUt)(nil)
+	_ NUt = (*UDPNUt)(nil)
+
+	nutLookup map[string]nutConstruct = map[string]nutConstruct{
+		"-":          NewStdioNUt,
+		"file":       NewFileNUt,
+		"stdin":      NewStdioNUt,
+		"stdio":      NewStdioNUt,
+		"stdout":     NewStdioNUt,
+		"tcp":        NewTCPNUt,
+		"tcp-l":      NewTCPNUt,
+		"tcp-listen": NewTCPNUt,
+		"tls":        NewTLSNUt,
+		"tls-l":      NewTLSNUt,
+		"tls-listen": NewTLSNUt,
+		"udp":        NewUDPNUt,
+		"udp-l":      NewUDPNUt,
+		"udp-listen": NewUDPNUt,
+	}
+)
+
 // NewNUt will return a new network utility from the provided seed
 // string.
-//
-//nolint:ireturn // It's supposed to return an interface, duh
 func NewNUt(seed string) (NUt, error) {
 	var theType string
 
 	theType, _, _ = strings.Cut(seed, ":")
 
-	switch theType {
-	case "file":
-		return NewFileNUt(seed)
-	case "-", "stdin", "stdio", "stdout":
-		return NewStdioNUt(seed)
-	case "tcp", "tcp-l", "tcp-listen":
-		return NewTCPNUt(seed)
-	case "tls", "tls-l", "tls-listen":
-		return NewTLSNUt(seed)
-	case "udp", "udp-l", "udp-listen":
-		return NewUDPNUt(seed)
+	if _, ok := nutLookup[theType]; !ok {
+		return nil, errors.Newf("unsupported NUt: %s", theType)
 	}
 
-	return nil, errors.Newf("unsupported NUt: %s", theType)
+	return nutLookup[theType](seed)
 }

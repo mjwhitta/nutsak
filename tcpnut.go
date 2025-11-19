@@ -24,7 +24,7 @@ type TCPNUt struct {
 
 // NewTCPNUt will return a pointer to a TCP network utility instance
 // with the provided seed.
-func NewTCPNUt(seed string) (*TCPNUt, error) {
+func NewTCPNUt(seed string) (NUt, error) {
 	var e error
 	var nut *TCPNUt = &TCPNUt{}
 

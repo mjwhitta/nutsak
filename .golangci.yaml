@@ -89,7 +89,7 @@ linters:
     # - interfacebloat
     - intrange
     - iotamixing
-    - ireturn
+    # - ireturn
     - lll
     # - loggercheck
     - maintidx

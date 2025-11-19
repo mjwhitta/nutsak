@@ -32,7 +32,7 @@ type TLSNUt struct {
 
 // NewTLSNUt will return a pointer to a TLS network utility instance
 // with the provided seed.
-func NewTLSNUt(seed string) (*TLSNUt, error) {
+func NewTLSNUt(seed string) (NUt, error) {
 	var e error
 	var nut *TLSNUt = &TLSNUt{}
 

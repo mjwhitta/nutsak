@@ -23,7 +23,7 @@ type UDPNUt struct {
 
 // NewUDPNUt will return a pointer to a UDP network utility instance
 // with the provided seed and mode.
-func NewUDPNUt(seed string) (*UDPNUt, error) {
+func NewUDPNUt(seed string) (NUt, error) {
 	var e error
 	var nut *UDPNUt = &UDPNUt{clients: map[string]struct{}{}}
 
