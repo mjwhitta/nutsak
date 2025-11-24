@@ -367,7 +367,7 @@ func TestTCPNUt(t *testing.T) {
 		t,
 		"testdata/out_tcp",
 		"tcp:doesnotexist.asdf.com:4444",
-		"tcp-l:doesnotexist.asdf.com:4444",
+		"tcp-listen:doesnotexist.asdf.com:4444",
 		"tcp:127.13.37.1:4444,asdf",
 		"file:testdata/in",
 		"tcp:127.13.37.1:4444",
@@ -531,7 +531,7 @@ func TestTLSNUt(t *testing.T) {
 		"tls:doesnotexist.asdf.com:8443",
 		strings.Join(
 			[]string{
-				"tls-l:doesnotexist.asdf.com:8443",
+				"tls-listen:doesnotexist.asdf.com:8443",
 				"ca=testdata/pki/ca/ca.cert.pem",
 				"cert=testdata/pki/certs/localhost.cert.pem",
 				"fork",
@@ -570,7 +570,7 @@ func TestUDPNUt(t *testing.T) {
 		t,
 		"testdata/out_udp",
 		"udp:doesnotexist.asdf.com:4444",
-		"udp-l:doesnotexist.asdf.com:4444",
+		"udp-listen:doesnotexist.asdf.com:4444",
 		"udp:127.13.37.1:4444,asdf",
 		"file:testdata/in",
 		"udp:127.13.37.1:5353",

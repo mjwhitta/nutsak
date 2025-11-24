@@ -42,7 +42,7 @@ func NewTLSNUt(seed string) (NUt, error) {
 	switch nut.Type() {
 	case "tls":
 		nut.mode = modeClient
-	case "tls-l", "tcl-listen":
+	case "tls-l", "tls-listen":
 		nut.mode = modeServer
 		nut.theType = "tls-listen"
 	default:

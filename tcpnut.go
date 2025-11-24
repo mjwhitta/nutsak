@@ -34,7 +34,7 @@ func NewTCPNUt(seed string) (NUt, error) {
 	switch nut.Type() {
 	case "tcp":
 		nut.mode = modeClient
-	case "tcp-l", "tcl-listen":
+	case "tcp-l", "tcp-listen":
 		nut.mode = modeServer
 		nut.theType = "tcp-listen"
 	default:
