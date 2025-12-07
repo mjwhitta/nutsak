@@ -299,7 +299,7 @@ func (nut *TLSNUt) parseOpts(k string, v string) error {
 
 // Read will read from the current TLS connection.
 //
-//nolint:dupl,mnd // TLS is TCP (so yeah), log levels
+//nolint:dupl,mnd // TLS is TCP (so yeah), Log levels
 func (nut *TLSNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -444,7 +444,7 @@ func (nut *TLSNUt) Up() error {
 
 // Write will write to the current TLS connection.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *TLSNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

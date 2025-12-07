@@ -70,7 +70,7 @@ func (nut *StdioNUt) KeepAlive() bool {
 
 // Read will read from stdin.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *StdioNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -119,7 +119,7 @@ func (nut *StdioNUt) Up() error {
 
 // Write will write to stdout.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *StdioNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

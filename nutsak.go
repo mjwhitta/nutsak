@@ -106,11 +106,11 @@ func Pair(a NUt, b NUt) error {
 
 	// Ensure they are up
 	if e := a.Up(); e != nil {
-		return e //nolint:wrapcheck // this error is from the same pkg
+		return e //nolint:wrapcheck // Not external to repo
 	}
 
 	if e := b.Up(); e != nil {
-		return e //nolint:wrapcheck // this error is from the same pkg
+		return e //nolint:wrapcheck // Not external to repo
 	}
 
 	// Stream a to b
@@ -143,11 +143,11 @@ func Pair(a NUt, b NUt) error {
 func Stream(a NUt, b NUt) error {
 	// Ensure they are up
 	if e := a.Up(); e != nil {
-		return e //nolint:wrapcheck // this error is from the same pkg
+		return e //nolint:wrapcheck // Not external to repo
 	}
 
 	if e := b.Up(); e != nil {
-		return e //nolint:wrapcheck // this error is from the same pkg
+		return e //nolint:wrapcheck // Not external to repo
 	}
 
 	stream(a, b)

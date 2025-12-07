@@ -95,7 +95,7 @@ func (nut *FileNUt) KeepAlive() bool {
 
 // Read will read from the file.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *FileNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -169,7 +169,7 @@ func (nut *FileNUt) Up() error {
 
 // Write will write to the file.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *FileNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

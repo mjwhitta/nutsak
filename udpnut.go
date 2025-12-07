@@ -140,7 +140,7 @@ func (nut *UDPNUt) listen(addr string) error {
 
 // Read will read from the current UDP connection.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *UDPNUt) Read(p []byte) (int, error) {
 	var a *net.UDPAddr
 	var e error
@@ -221,7 +221,7 @@ func (nut *UDPNUt) Up() error {
 
 // Write will write to the current UDP connection.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *UDPNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int

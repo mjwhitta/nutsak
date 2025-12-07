@@ -268,7 +268,7 @@ func (nut *TCPNUt) listen(addr string) error {
 
 // Read will read from the current TCP connection.
 //
-//nolint:dupl, mnd // TLS is TCP (so yeah), log levels
+//nolint:dupl, mnd // TLS is TCP (so yeah), Log levels
 func (nut *TCPNUt) Read(p []byte) (int, error) {
 	var e error
 	var n int
@@ -342,7 +342,7 @@ func (nut *TCPNUt) Up() error {
 
 // Write will write to the current TCP connection.
 //
-//nolint:mnd // log levels
+//nolint:mnd // Log levels
 func (nut *TCPNUt) Write(p []byte) (int, error) {
 	var e error
 	var n int
