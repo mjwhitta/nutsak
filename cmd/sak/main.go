@@ -45,7 +45,6 @@ func main() {
 	// Debug setup
 	if flags.debug > 0 {
 		sak.Logger = log.NewMessenger()
-		//nolint:gosec // G115 - you'd have to pass the flag A LOT
 		sak.LogLvl = int(flags.debug)
 	}
 
