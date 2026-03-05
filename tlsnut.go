@@ -343,7 +343,7 @@ func (nut *TLSNUt) setupTLSConfig() error {
 	var pool *x509.CertPool
 
 	// Create initial config
-	nut.tlscfg = &tls.Config{} //nolint:gosec // G402 - not a problem
+	nut.tlscfg = &tls.Config{}
 
 	switch nut.mode {
 	case modeClient:
