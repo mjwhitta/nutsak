@@ -1,13 +1,13 @@
 module github.com/mjwhitta/nutsak
 
-go 1.24.0
+go 1.25.0
 
 require (
-	github.com/mjwhitta/cli v1.14.1
-	github.com/mjwhitta/errors v1.0.7
-	github.com/mjwhitta/hilighter v1.15.1
-	github.com/mjwhitta/log v1.8.9
-	github.com/mjwhitta/pathname v1.3.1
+	github.com/mjwhitta/cli v1.14.2
+	github.com/mjwhitta/errors v1.0.8
+	github.com/mjwhitta/hilighter v1.15.2
+	github.com/mjwhitta/log v1.8.10
+	github.com/mjwhitta/pathname v1.3.2
 	github.com/stretchr/testify v1.11.1
 )
 
